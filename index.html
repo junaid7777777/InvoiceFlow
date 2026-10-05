@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvoiceFlow Dashboard</title>
+    <style>
+        :root {
+            --bg-dark: #f8fafc;
+            --card-bg: #ffffff;
+            --accent-blue: #4f46e5;
+            --accent-green: #10b981;
+            --accent-orange: #ef4444;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding: 2rem 1.5rem; min-height: 100vh; }
+        .app-container { max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; background-color: var(--accent-blue); color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .app-header h1 { font-size: 1.8rem; font-weight: 700; }
+        .badge-header { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        @media (max-width: 900px) { .metrics-grid { grid-template-columns: 1fr; } .main-layout { grid-template-columns: 1fr; } }
+        .metric-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .metric-card h3 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; font-weight: 600; }
+        .metric-card p { font-size: 1.8rem; font-weight: 700; color: #0f172a; }
+        .metric-card:nth-child(2) p { color: var(--accent-green); }
+        .metric-card:nth-child(3) p { color: var(--accent-orange); }
+        .main-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; }
+        .interface-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .interface-card h2 { font-size: 1.2rem; margin-bottom: 1.25rem; font-weight: 600; color: #0f172a; border-left: 4px solid var(--accent-blue); padding-left: 0.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        input, select { border: 1px solid var(--border-color); border-radius: 6px; padding: 0.65rem; color: var(--text-main); font-size: 0.95rem; width: 100%; background-color: #fff; }
+        .estimate-container { display: flex; justify-content: space-between; margin: 1rem 0; font-size: 0.95rem; background: #f8fafc; padding: 0.75rem; border-radius: 6px; border: 1px dashed var(--border-color); }
+        .estimate-container span:last-child { font-weight: 700; color: var(--accent-blue); }
+        .btn-primary { background-color: var(--accent-blue); color: #fff; border: none; border-radius: 6px; padding: 0.75rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; width: 100%; }
+        .table-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
+        .filter-controls { display: flex; gap: 0.5rem; }
+        .filter-controls input { width: 180px; }
+        .filter-controls select { width: 120px; }
+        .table-scroll-wrapper { overflow-x: auto; width: 100%; }
+        .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        .data-table th, .data-table td { padding: 0.85rem 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .data-table th { color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; background-color: #f8fafc; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
+        .badge.paid { background-color: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
+        .badge.pending { background-color: rgba(239, 68, 68, 0.1); color: var(--accent-orange); }
+        .btn-table-action { background-color: var(--accent-green); color: #fff; border: none; border-radius: 4px; padding: 0.35rem 0.65rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>InvoiceFlow</h1>
+            <div class="badge-header">FYBSC-IT ESE Project</div>
+        </header>
+
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <h3>TOTAL INVOICED</h3>
+                <p id="totalInvoicedDisplay">₹0.00</p>
+            </div>
+            <div class="metric-card">
+                <h3>REVENUE COLLECTED</h3>
+                <p id="revenueCollectedDisplay">₹0.00</p>
+            </div>
+            <div class="metric-card">
+                <h3>OUTSTANDING UDHAAR</h3>
+                <p id="outstandingUdhaarDisplay">₹0.00</p>
+            </div>
+        </section>
+
+        <main class="main-layout">
+            <div class="interface-card">
+                <h2>Generate New Bill</h2>
+                <form id="invoiceForm">
+                    <div class="form-group">
+                        <label>Customer Name</label>
+                        <input type="text" id="customerNameInput" placeholder="e.g. Rahul Sharma" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Item / Service Name</label>
+                        <input type="text" id="itemNameInput" placeholder="e.g. Printing / Groceries" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" id="quantityInput" value="1" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Price Per Unit (₹)</label>
+                            <input type="number" id="unitPriceInput" placeholder="0.00" step="0.01" min="0.01" required>
+                        </div>
+                    </div>
+                    <div class="estimate-container">
+                        <span>Estimated Total:</span>
+                        <span id="estimatedTotalDisplay">₹0.00</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Status</label>
+                        <select id="paymentStatusInput">
+                            <option value="PAID">PAID (Clear)</option>
+                            <option value="PENDING">PENDING (Udhaar)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Create Invoice</button>
+                </form>
+            </div>
+
+            <div class="interface-card">
+                <div class="table-header-row">
+                    <h2>Transaction History Ledger</h2>
+                    <div class="filter-controls">
+                        <input type="text" id="searchInputField" placeholder="Search customer...">
+                        <select id="filterSelectField">
+                            <option value="All Bills">All Bills</option>
+                            <option value="PAID">PAID Only</option>
+                            <option value="PENDING">PENDING Only</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-scroll-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Details</th>
+                                <th>Total Amount</th>
+                                <th>Status Ledger</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceTableBodyContainer">
+                            <!-- Rows dynamic load location -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Link to external logical engine -->
+    <script src="app.js"></script>
+</body>
+</html>
