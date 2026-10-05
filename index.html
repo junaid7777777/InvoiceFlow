@@ -22,7 +22,19 @@
         .app-header h1 { font-size: 1.8rem; font-weight: 700; }
         .badge-header { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
         .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-        @media (max-width: 900px) { .metrics-grid { grid-template-columns: 1fr; } .main-layout { grid-template-columns: 1fr; } }
+      @media (max-width: 1024px) {
+    .metrics-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .main-layout {
+        grid-template-columns: 1fr !important;
+    }
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
         .metric-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .metric-card h3 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; font-weight: 600; }
         .metric-card p { font-size: 1.8rem; font-weight: 700; color: #0f172a; }
