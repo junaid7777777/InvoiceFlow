@@ -99,7 +99,7 @@ function renderDashboard() {
         if (chosenFilter === 'PAID') filterMatch = (r.status === 'PAID');
         if (chosenFilter === 'PENDING') filterMatch = (r.status === 'PENDING');
         return textMatch && filterMatch;
-    });
+            });
 
     containerBody.innerHTML = '';
     if (filteredList.length === 0) {
@@ -112,10 +112,12 @@ function renderDashboard() {
         const badgeClass = r.status === 'PAID' ? 'badge paid' : 'badge pending';
         const statusLabelText = r.status === 'PAID' ? 'PAID (Clear)' : 'PENDING (Udhaar)';
 
-        let actHTML = '--';
+        // Combines both Mark Paid and Print buttons smoothly inside the actions column
+        let actHTML = '';
         if (r.status === 'PENDING') {
-            actHTML = `<button class="btn-table-action" onclick="settleInvoiceRecordDirectly(${r.id})">Mark Paid</button>`;
+            actHTML += `<button class="btn-table-action" onclick="settleInvoiceRecordDirectly(${r.id})" style="margin-right: 6px;">Mark Paid</button>`;
         }
+        actHTML += `<button class="btn-table-action" onclick="window.print()" style="background-color: #64748b;">Print</button>`;
 
         tr.innerHTML = `
             <td><strong>INV-${r.id}</strong></td>
@@ -123,7 +125,7 @@ function renderDashboard() {
             <td><small style="color:var(--text-muted);">${r.item} (x${r.qty})</small></td>
             <td><strong>₹${r.total.toFixed(2)}</strong></td>
             <td><span class="${badgeClass}">${statusLabelText}</span></td>
-            <td>${actHTML}</td>
+            <td><div style="display: flex; align-items: center;">${actHTML}</div></td>
         `;
         containerBody.appendChild(tr);
     });
